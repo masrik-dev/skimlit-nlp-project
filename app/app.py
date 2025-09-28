@@ -30,3 +30,27 @@ final_model = laod_model(
 )
 
 # Load label encoder
+with open("model_components/label_encoder.pkl", "rb") as file:
+    label_encoder = pickle.load(file)
+
+def classify_abstract_sentences(example_sentence, model):
+    abstract_lines = example_sentence.split(". ")
+    abstract_lines = [line.strip() for line in abstract_lines if line.strip()]
+    total_lines_in_sample = len(abstract_lines)
+
+    sample_lines = []
+    for i, line in enumerate(abstract_lines):
+        sample_dict = {
+            "text": line,
+            "line_number": i,
+            "total_lines": total_lines_in_sample - 1
+        }
+        sample_lines.append(sample_dict)
+
+        test_abstract_line_numbers = [line["line_number"] for line in sample_lines]
+        test_abstract_line_numbers_one_hot = tf.one_hot(test_abstract_line_numbers, depth=15)
+
+        test_abstract_total_lines = [line["total_lines"] for line in sample_lines]
+        test_abstract_total_lines_one_hot = tf.one_hot(test_abstract_total_lines, depth=20)
+
+        

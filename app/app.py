@@ -47,10 +47,31 @@ def classify_abstract_sentences(example_sentence, model):
         }
         sample_lines.append(sample_dict)
 
-        test_abstract_line_numbers = [line["line_number"] for line in sample_lines]
-        test_abstract_line_numbers_one_hot = tf.one_hot(test_abstract_line_numbers, depth=15)
+    test_abstract_line_numbers = [line["line_number"] for line in sample_lines]
+    test_abstract_line_numbers_one_hot = tf.one_hot(test_abstract_line_numbers, depth=15)
 
-        test_abstract_total_lines = [line["total_lines"] for line in sample_lines]
-        test_abstract_total_lines_one_hot = tf.one_hot(test_abstract_total_lines, depth=20)
+    test_abstract_total_lines = [line["total_lines"] for line in sample_lines]
+    test_abstract_total_lines_one_hot = tf.one_hot(test_abstract_total_lines, depth=20)
 
+    def split_chars(text):
+        return " ".join(list(text))
         
+    abstract_chars = [split_chars(sentence) for sentence in abstract_lines]
+
+    test_abstract_pred_probs = model.predict(x=(test_abstract_line_numbers_one_hot,
+                                                test_abstract_total_lines_one_hot,
+                                                tf.constant(abstract_lines),
+                                                tf.constant(abstract_chars)))
+        
+    test_abstract_preds = tf.argmax(test_abstract_pred_probs, axis=1)
+
+    test_abstract_pred_classes = [label_encoder.classes_[i] for i in test_abstract_preds]
+
+    output = []
+    for i, line in enumerate(abstract_lines):
+        output.append(f"{test_abstract_pred_classes[i]}: {line}")
+    return output
+
+
+def preprocess_output(prediction):   
+    

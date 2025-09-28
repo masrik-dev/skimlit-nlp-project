@@ -74,4 +74,17 @@ def classify_abstract_sentences(example_sentence, model):
 
 
 def preprocess_output(prediction):   
-    
+    formatted_output = []
+    current_section = None
+
+    for prediction in predictions:
+        section, text = prediction.split(": ", 1)
+        if section != current_section:
+            if current_section is not None:
+                formatted_output.append("\n")
+            formatted_output.append(section)
+            current_section = section
+        formatted_output.append(f" {text}")
+
+    return formatted_output
+

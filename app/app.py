@@ -88,3 +88,15 @@ def preprocess_output(prediction):
 
     return formatted_output
 
+@app.route("/", methods=["GET", "POST"])
+def home():
+    if request.method == "POST":
+        input_text = request.form["text"]
+        if input_text:
+            predictions = classify_abstract_sentences(input_text, final_model)
+            formatted_predictions = preprocess_output(predictions)
+            return render_template("index.html", predictions=formatted_predictions, input_text=input_text)
+    return render_template("index.html", predictions=None, input_text=None)
+
+if __name__ == "__main__":
+    app.run(debug=True)
